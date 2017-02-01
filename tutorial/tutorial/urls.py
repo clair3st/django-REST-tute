@@ -1,25 +1,34 @@
-"""tutorial URL Configuration
+from snippets import resources
+from django.conf.urls import patterns, url, include
+from rest_framework.urlpatterns import format_suffix_patterns
 
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.10/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
-from django.conf.urls import url, include
+snippet_list = resources.SnippetResource.as_view(actions={
+    'get': 'list',
+    'post': 'create'
+})
+snippet_detail = resources.SnippetResource.as_view(actions={
+    'get': 'retrieve',
+    'put': 'update',
+    'delete': 'destroy'
+})
+user_list = resources.UserResource.as_view(actions={
+    'get': 'list',
+    'post': 'create'
+})
+user_detail = resources.UserResource.as_view(actions={
+    'get': 'retrieve',
+    'put': 'update',
+    'delete': 'destroy'
+})
 
-urlpatterns = [
-    url(r'^', include('snippets.urls')),
-]
+urlpatterns = format_suffix_patterns(patterns('snippets.views',
+    url(r'^$', 'api_root'),
+    url(r'^snippets/$', snippet_list, name='snippet-list'),
+    url(r'^snippets/(?P<pk>[0-9]+)/$', snippet_detail, name='snippet-detail'),
+    url(r'^users/$', user_list, name='user-list'),
+    url(r'^users/(?P<pk>[0-9]+)/$', user_detail, name='user-detail')
+))
 
-urlpatterns += [
-    url(r'^api-auth/', include('rest_framework.urls',
-                               namespace='rest_framework')),
-]
+urlpatterns += patterns('',
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+)
